@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import { 
   ReactFlow, 
@@ -41,6 +40,37 @@ export const DAGCanvas: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+
+  const defaultGCSConfig: GCSConfig = {
+    bucketName: '',
+    filePath: '',
+    fileFormat: 'csv',
+  };
+
+  const defaultClickhouseConfig: ClickhouseConfig = {
+    host: '',
+    port: 8443,
+    username: 'default',
+    password: '',
+    database: 'default',
+    secure: true,
+  };
+
+  const defaultSchemaConfig: SchemaConfig = {
+    tableName: '',
+    fields: [{ name: '', type: 'String', sourceField: '', nullable: true }],
+  };
+
+  const defaultDataLoadConfig: DataLoadConfig = {
+    strategy: 'delete_and_load',
+    targetTable: '',
+  };
+
+  const defaultSQLConfig: SQLConfig = {
+    query: '',
+    createMaterializedView: false,
+    viewName: '',
+  };
 
   const handleAddNode = (type: NodeType) => {
     if (!reactFlowInstance) {
@@ -133,7 +163,7 @@ export const DAGCanvas: React.FC = () => {
 
         <div className="pipeline-canvas flex-1" ref={reactFlowWrapper}>
           <ReactFlow
-            nodes={nodes}
+            nodes={nodes as unknown as Node[]}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
@@ -168,7 +198,7 @@ export const DAGCanvas: React.FC = () => {
         {selectedNode && selectedNode.type === 'gcsSource' && (
           <GCSConfigPanel
             nodeId={selectedNode.id}
-            initialConfig={selectedNode.data.config}
+            initialConfig={selectedNode.data.config || defaultGCSConfig}
             onClose={() => setSelectedNode(null)}
             onSave={handleSaveGCSConfig}
           />
@@ -177,7 +207,7 @@ export const DAGCanvas: React.FC = () => {
         {selectedNode && selectedNode.type === 'clickhouseConnect' && (
           <ClickhouseConfigPanel
             nodeId={selectedNode.id}
-            initialConfig={selectedNode.data.config}
+            initialConfig={selectedNode.data.config || defaultClickhouseConfig}
             onClose={() => setSelectedNode(null)}
             onSave={handleSaveClickhouseConfig}
           />
@@ -186,7 +216,7 @@ export const DAGCanvas: React.FC = () => {
         {selectedNode && selectedNode.type === 'schemaMapping' && (
           <SchemaMapper
             nodeId={selectedNode.id}
-            initialConfig={selectedNode.data.config}
+            initialConfig={selectedNode.data.config || defaultSchemaConfig}
             onClose={() => setSelectedNode(null)}
             onSave={handleSaveSchemaConfig}
           />
@@ -195,7 +225,7 @@ export const DAGCanvas: React.FC = () => {
         {selectedNode && selectedNode.type === 'dataLoad' && (
           <DataLoadConfigPanel
             nodeId={selectedNode.id}
-            initialConfig={selectedNode.data.config}
+            initialConfig={selectedNode.data.config || defaultDataLoadConfig}
             onClose={() => setSelectedNode(null)}
             onSave={handleSaveDataLoadConfig}
           />
@@ -204,7 +234,7 @@ export const DAGCanvas: React.FC = () => {
         {selectedNode && selectedNode.type === 'sqlExecution' && (
           <SQLEditor
             nodeId={selectedNode.id}
-            initialConfig={selectedNode.data.config}
+            initialConfig={selectedNode.data.config || defaultSQLConfig}
             onClose={() => setSelectedNode(null)}
             onSave={handleSaveSQLConfig}
           />

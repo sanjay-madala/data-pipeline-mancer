@@ -22,6 +22,8 @@ export interface NodeData {
   label: string;
   description?: string;
   config?: any;
+  // Add index signature to satisfy Record<string, unknown>
+  [key: string]: unknown;
 }
 
 export interface GCSConfig {

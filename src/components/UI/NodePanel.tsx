@@ -24,7 +24,7 @@ export const NodePanel: React.FC<NodePanelProps> = ({ title, onClose, children }
           </Button>
         )}
       </div>
-      <ScrollArea className={isStepByStep ? "max-h-[60vh]" : "h-[calc(100vh-20rem)]"} className="pr-4">
+      <ScrollArea className={isStepByStep ? "max-h-[60vh]" : "h-[calc(100vh-20rem)]"}>
         <div className="space-y-4">
           {children}
         </div>

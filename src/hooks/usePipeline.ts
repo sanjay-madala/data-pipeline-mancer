@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { 
   Connection, 
@@ -12,7 +11,7 @@ import {
   XYPosition
 } from '@xyflow/react';
 import { PipelineNode, PipelineEdge, NodeType } from '../types/pipeline';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 
 let nodeId = 0;
 
@@ -22,17 +21,23 @@ export function usePipeline() {
   const [selectedNode, setSelectedNode] = useState<PipelineNode | null>(null);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    (changes: NodeChange[]) => {
+      setNodes((nds) => applyNodeChanges(changes, nds as any) as unknown as PipelineNode[]);
+    },
     []
   );
   
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    (changes: EdgeChange[]) => {
+      setEdges((eds) => applyEdgeChanges(changes, eds as any) as unknown as PipelineEdge[]);
+    },
     []
   );
 
   const onConnect = useCallback(
-    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
+    (connection: Connection) => {
+      setEdges((eds) => addEdge(connection, eds) as unknown as PipelineEdge[]);
+    },
     []
   );
 
@@ -80,7 +85,6 @@ export function usePipeline() {
   }, []);
 
   const validatePipeline = useCallback(() => {
-    // Check if we have at least one source and one destination
     const hasGCSSource = nodes.some(node => node.type === 'gcsSource');
     const hasClickhouseConnect = nodes.some(node => node.type === 'clickhouseConnect');
     
@@ -94,7 +98,6 @@ export function usePipeline() {
       return false;
     }
     
-    // Check for disconnected nodes
     const connectedNodeIds = new Set<string>();
     
     edges.forEach(edge => {
@@ -109,7 +112,6 @@ export function usePipeline() {
       return false;
     }
     
-    // Check for cycles
     const adjacencyList: Record<string, string[]> = {};
     
     nodes.forEach(node => {
@@ -150,7 +152,6 @@ export function usePipeline() {
       }
     }
     
-    // All validation checks passed
     return true;
   }, [nodes, edges]);
 
@@ -161,7 +162,6 @@ export function usePipeline() {
     
     toast.success("Pipeline execution started");
     
-    // In a real app, we would connect to actual services here
     setTimeout(() => {
       toast.success("Pipeline executed successfully");
     }, 2000);
