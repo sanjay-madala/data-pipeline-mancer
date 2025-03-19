@@ -11,15 +11,20 @@ interface NodePanelProps {
 }
 
 export const NodePanel: React.FC<NodePanelProps> = ({ title, onClose, children }) => {
+  // Determine if we're in the step-by-step mode or the DAG mode
+  const isStepByStep = !onClose || typeof onClose !== 'function';
+  
   return (
-    <div className="node-panel animate-fade-in">
+    <div className={`node-panel ${isStepByStep ? '' : 'animate-fade-in'}`}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-medium">{title}</h3>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </Button>
+        {!isStepByStep && (
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
-      <ScrollArea className="h-[calc(100vh-20rem)] pr-4">
+      <ScrollArea className={isStepByStep ? "max-h-[60vh]" : "h-[calc(100vh-20rem)]"} className="pr-4">
         <div className="space-y-4">
           {children}
         </div>
