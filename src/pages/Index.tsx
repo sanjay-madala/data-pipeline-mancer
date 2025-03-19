@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { FileStackIcon, ArrowUpIcon, ServerIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { FileStackIcon, ArrowUpIcon, ServerIcon, CloudIcon, LinkIcon } from 'lucide-react';
 import { StepByStepPipeline } from '@/components/StepByStep/StepByStepPipeline';
 import { DAGCanvas } from '@/components/DAGBuilder/DAGCanvas';
 import { OrchestrationCanvas } from '@/components/PipelineManagement/OrchestrationCanvas';
@@ -88,8 +89,15 @@ const Index = () => {
           </div>
           
           <div className="flex items-center gap-4">
+            <Link to="/connections">
+              <Button variant="outline" size="sm" className="gap-2">
+                <LinkIcon className="w-4 h-4" />
+                Manage Connections
+              </Button>
+            </Link>
+            
             <div className="flex items-center text-sm text-muted-foreground gap-2">
-              <FileStackIcon className="w-4 h-4" />
+              <CloudIcon className="w-4 h-4" />
               <span>Google Cloud Storage</span>
             </div>
             <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-subtle" />
