@@ -10,6 +10,7 @@ import { usePipeline } from '@/hooks/usePipeline';
 import { StepNavigation } from './StepNavigation';
 import { PipelineSummary } from './PipelineSummary';
 import { NodeType } from '@/types/pipeline';
+import { v4 as uuidv4 } from 'uuid';
 
 // Define the steps in our pipeline
 const PIPELINE_STEPS: NodeType[] = [
@@ -33,6 +34,7 @@ export const StepByStepPipeline: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isNextDisabled, setIsNextDisabled] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [pipelineName, setPipelineName] = useState(`Pipeline ${uuidv4().substring(0, 8)}`);
 
   // Initialize the pipeline with default nodes on component mount
   useEffect(() => {
@@ -109,6 +111,8 @@ export const StepByStepPipeline: React.FC = () => {
   const handleSavePipeline = () => {
     if (validatePipeline()) {
       const pipelineConfig = {
+        id: uuidv4(), // Generate a UUID for the pipeline
+        name: pipelineName,
         nodes,
         edges,
       };
@@ -230,7 +234,12 @@ export const StepByStepPipeline: React.FC = () => {
 
       {showSummary ? (
         <PipelineSummary 
-          config={{ nodes, edges }}
+          config={{ 
+            id: uuidv4(), // Generate a UUID for the pipeline
+            name: pipelineName,
+            nodes, 
+            edges 
+          }}
           onExecute={executePipeline}
           onSave={handleSavePipeline}
           onEdit={handleEditStep}

@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { 
   Connection, 
@@ -12,6 +13,7 @@ import {
 } from '@xyflow/react';
 import { PipelineNode, PipelineEdge, NodeType } from '../types/pipeline';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
 let nodeId = 0;
 
@@ -48,6 +50,11 @@ export function usePipeline() {
       case 'schemaMapping': return 'Schema Mapping';
       case 'dataLoad': return 'Data Load';
       case 'sqlExecution': return 'SQL Execution';
+      case 'customStep': return 'Custom Step';
+      case 'pipelineReference': return 'Pipeline Reference';
+      case 'orchestrationStart': return 'Start';
+      case 'orchestrationEnd': return 'End';
+      case 'orchestrationCondition': return 'Condition';
       default: return 'Unknown Node';
     }
   };
