@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef } from 'react';
 import { 
   ReactFlow, 
@@ -17,11 +18,12 @@ import { ClickhouseConfigPanel } from '../ConfigPanels/ClickhouseConfig';
 import { SchemaMapper } from '../ConfigPanels/SchemaMapper';
 import { DataLoadConfigPanel } from '../ConfigPanels/DataLoadConfig';
 import { SQLEditor } from '../ConfigPanels/SQLEditor';
+import { CustomStepConfigPanel } from '../ConfigPanels/CustomStepConfig';
 import { PipelineControls } from './PipelineControls';
 import { NodeType } from '@/types/pipeline';
 import { toast } from 'sonner';
 
-import { GCSConfig, ClickhouseConfig, SchemaConfig, DataLoadConfig, SQLConfig } from '@/types/pipeline';
+import { GCSConfig, ClickhouseConfig, SchemaConfig, DataLoadConfig, SQLConfig, CustomStepConfig } from '@/types/pipeline';
 
 export const DAGCanvas: React.FC = () => {
   const { 
@@ -45,6 +47,8 @@ export const DAGCanvas: React.FC = () => {
     bucketName: '',
     filePath: '',
     fileFormat: 'csv',
+    delimiter: ',',
+    hasHeader: true
   };
 
   const defaultClickhouseConfig: ClickhouseConfig = {
@@ -53,23 +57,30 @@ export const DAGCanvas: React.FC = () => {
     username: 'default',
     password: '',
     database: 'default',
-    secure: true,
+    secure: true
   };
 
   const defaultSchemaConfig: SchemaConfig = {
     tableName: '',
-    fields: [{ name: '', type: 'String', sourceField: '', nullable: true }],
+    fields: [{ name: '', type: 'String', sourceField: '', nullable: true }]
   };
 
   const defaultDataLoadConfig: DataLoadConfig = {
     strategy: 'delete_and_load',
-    targetTable: '',
+    targetTable: ''
   };
 
   const defaultSQLConfig: SQLConfig = {
     query: '',
     createMaterializedView: false,
-    viewName: '',
+    viewName: ''
+  };
+
+  const defaultCustomStepConfig: CustomStepConfig = {
+    code: '',
+    inputs: [],
+    outputs: [],
+    description: ''
   };
 
   const handleAddNode = (type: NodeType) => {
@@ -130,6 +141,13 @@ export const DAGCanvas: React.FC = () => {
     updateNodeData(nodeId, { config, description });
   };
 
+  const handleSaveCustomStepConfig = (nodeId: string, config: CustomStepConfig) => {
+    updateNodeData(nodeId, { 
+      config,
+      description: config.description || 'Custom Step'
+    });
+  };
+
   const handleSavePipeline = () => {
     if (validatePipeline()) {
       const pipelineConfig = {
@@ -163,7 +181,7 @@ export const DAGCanvas: React.FC = () => {
 
         <div className="pipeline-canvas flex-1" ref={reactFlowWrapper}>
           <ReactFlow
-            nodes={nodes as unknown as Node[]}
+            nodes={nodes as Node[]}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
@@ -183,6 +201,7 @@ export const DAGCanvas: React.FC = () => {
                 case 'schemaMapping': return '#10b981';
                 case 'dataLoad': return '#8b5cf6';
                 case 'sqlExecution': return '#f59e0b';
+                case 'customStep': return '#06b6d4';
                 default: return '#888';
               }
             }} />
@@ -237,6 +256,15 @@ export const DAGCanvas: React.FC = () => {
             initialConfig={selectedNode.data.config || defaultSQLConfig}
             onClose={() => setSelectedNode(null)}
             onSave={handleSaveSQLConfig}
+          />
+        )}
+
+        {selectedNode && selectedNode.type === 'customStep' && (
+          <CustomStepConfigPanel
+            nodeId={selectedNode.id}
+            initialConfig={selectedNode.data.config || defaultCustomStepConfig}
+            onClose={() => setSelectedNode(null)}
+            onSave={handleSaveCustomStepConfig}
           />
         )}
       </div>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Cloud, Database, Table, ArrowDownToLine, Code, Play, Save, Trash2 } from 'lucide-react';
+import { Cloud, Database, Table, ArrowDownToLine, Code, Play, Save, Trash2, FileCode } from 'lucide-react';
 import { toast } from 'sonner';
 import { NodeType } from '@/types/pipeline';
 
@@ -69,6 +69,16 @@ export const PipelineControls: React.FC<PipelineControlsProps> = ({
         >
           <Code size={16} className="text-node-transform" />
           <span>SQL</span>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex items-center gap-2 rounded-full px-3 h-10"
+          onClick={() => onAddNode('customStep')}
+        >
+          <FileCode size={16} className="text-node-custom" />
+          <span>Custom Step</span>
         </Button>
       </div>
 

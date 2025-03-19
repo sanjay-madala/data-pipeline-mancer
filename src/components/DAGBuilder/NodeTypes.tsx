@@ -1,7 +1,7 @@
 
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Cloud, Database, Table, ArrowDownToLine, Code } from "lucide-react";
+import { Cloud, Database, Table, ArrowDownToLine, Code, Play, CheckCircle2, Split, FileCode } from "lucide-react";
 import { NodeType } from '@/types/pipeline';
 
 interface NodeProps {
@@ -39,6 +39,31 @@ const nodeConfig = {
     icon: Code,
     class: 'transform-node',
     handles: { inputs: 1, outputs: 1 }
+  },
+  customStep: {
+    icon: FileCode,
+    class: 'custom-node',
+    handles: { inputs: 1, outputs: 1 }
+  },
+  pipelineReference: {
+    icon: Play,
+    class: 'pipeline-node',
+    handles: { inputs: 1, outputs: 1 }
+  },
+  orchestrationStart: {
+    icon: Play,
+    class: 'orchestration-start-node',
+    handles: { inputs: 0, outputs: 1 }
+  },
+  orchestrationEnd: {
+    icon: CheckCircle2,
+    class: 'orchestration-end-node',
+    handles: { inputs: 1, outputs: 0 }
+  },
+  orchestrationCondition: {
+    icon: Split,
+    class: 'orchestration-condition-node',
+    handles: { inputs: 1, outputs: 2 }
   }
 };
 
@@ -77,6 +102,15 @@ const BaseNode = memo(({ id, data, selected, type }: NodeProps) => {
           className="w-3 h-3 -mr-1.5"
         />
       )}
+
+      {type === 'orchestrationCondition' && (
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          id="false"
+          className="w-3 h-3 -mb-1.5"
+        />
+      )}
     </div>
   );
 });
@@ -86,6 +120,11 @@ export const ClickhouseConnectNode = (props: NodeProps) => <BaseNode {...props} 
 export const SchemaMappingNode = (props: NodeProps) => <BaseNode {...props} type="schemaMapping" />;
 export const DataLoadNode = (props: NodeProps) => <BaseNode {...props} type="dataLoad" />;
 export const SQLExecutionNode = (props: NodeProps) => <BaseNode {...props} type="sqlExecution" />;
+export const CustomStepNode = (props: NodeProps) => <BaseNode {...props} type="customStep" />;
+export const PipelineReferenceNode = (props: NodeProps) => <BaseNode {...props} type="pipelineReference" />;
+export const OrchestrationStartNode = (props: NodeProps) => <BaseNode {...props} type="orchestrationStart" />;
+export const OrchestrationEndNode = (props: NodeProps) => <BaseNode {...props} type="orchestrationEnd" />;
+export const OrchestrationConditionNode = (props: NodeProps) => <BaseNode {...props} type="orchestrationCondition" />;
 
 export const nodeTypes = {
   gcsSource: GCSSourceNode,
@@ -93,4 +132,9 @@ export const nodeTypes = {
   schemaMapping: SchemaMappingNode,
   dataLoad: DataLoadNode,
   sqlExecution: SQLExecutionNode,
+  customStep: CustomStepNode,
+  pipelineReference: PipelineReferenceNode,
+  orchestrationStart: OrchestrationStartNode,
+  orchestrationEnd: OrchestrationEndNode,
+  orchestrationCondition: OrchestrationConditionNode,
 };

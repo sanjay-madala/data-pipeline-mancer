@@ -4,7 +4,12 @@ export type NodeType =
   | "clickhouseConnect" 
   | "schemaMapping" 
   | "dataLoad" 
-  | "sqlExecution";
+  | "sqlExecution"
+  | "customStep"
+  | "pipelineReference"
+  | "orchestrationStart"
+  | "orchestrationEnd"
+  | "orchestrationCondition";
 
 export type LoadStrategy = "delete_and_load" | "append";
 
@@ -16,13 +21,30 @@ export interface PipelineNode {
     y: number;
   };
   data: NodeData;
+  // Add properties expected by ReactFlow's Node type
+  dragging?: boolean;
+  selected?: boolean;
+  height?: number;
+  width?: number;
+  positionAbsolute?: {
+    x: number;
+    y: number;
+  };
+  z?: number;
+  sourcePosition?: string;
+  targetPosition?: string;
+  hidden?: boolean;
+  draggable?: boolean;
+  selectable?: boolean;
+  connectable?: boolean;
+  resizing?: boolean;
 }
 
 export interface NodeData {
   label: string;
   description?: string;
   config?: any;
-  // Add index signature to satisfy Record<string, unknown>
+  pipelineId?: string;
   [key: string]: unknown;
 }
 
@@ -66,15 +88,43 @@ export interface SQLConfig {
   viewName?: string;
 }
 
+export interface CustomStepConfig {
+  code: string;
+  inputs: string[];
+  outputs: string[];
+  description: string;
+}
+
+export interface OrchestrationConditionConfig {
+  condition: string;
+  description: string;
+}
+
 export interface PipelineEdge {
   id: string;
   source: string;
   target: string;
   sourceHandle?: string;
   targetHandle?: string;
+  data?: {
+    condition?: string;
+    label?: string;
+  };
 }
 
 export interface PipelineConfig {
+  id: string;
+  name: string;
+  description?: string;
   nodes: PipelineNode[];
   edges: PipelineEdge[];
+}
+
+export interface OrchestrationConfig {
+  id: string;
+  name: string;
+  description?: string;
+  nodes: PipelineNode[];
+  edges: PipelineEdge[];
+  pipelines: PipelineConfig[];
 }
