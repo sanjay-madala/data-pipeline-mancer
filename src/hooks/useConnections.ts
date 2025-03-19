@@ -7,11 +7,13 @@ import { GCSConfig, ClickhouseConfig } from '@/types/pipeline';
 export interface GCSConnection extends GCSConfig {
   id: string;
   name: string;
+  secrets?: Record<string, string>;
 }
 
 export interface ClickhouseConnection extends ClickhouseConfig {
   id: string;
   name: string;
+  secrets?: Record<string, string>;
 }
 
 export const useConnections = () => {
@@ -42,19 +44,21 @@ export const useConnections = () => {
   }, [clickhouseConnections]);
 
   // Add a new GCS connection
-  const addGCSConnection = (connection: GCSConfig & { id?: string, name: string }) => {
+  const addGCSConnection = (connection: GCSConfig & { id?: string, name: string, secrets?: Record<string, string> }) => {
     const newConnection = {
       ...connection,
       id: connection.id || uuidv4(),
+      secrets: connection.secrets || {},
     };
     setGCSConnections(prev => [...prev, newConnection as GCSConnection]);
   };
 
   // Add a new Clickhouse connection
-  const addClickhouseConnection = (connection: ClickhouseConfig & { id?: string, name: string }) => {
+  const addClickhouseConnection = (connection: ClickhouseConfig & { id?: string, name: string, secrets?: Record<string, string> }) => {
     const newConnection = {
       ...connection,
       id: connection.id || uuidv4(),
+      secrets: connection.secrets || {},
     };
     setClickhouseConnections(prev => [...prev, newConnection as ClickhouseConnection]);
   };
@@ -87,6 +91,43 @@ export const useConnections = () => {
     setClickhouseConnections(prev => prev.filter(conn => conn.id !== id));
   };
 
+  // Get a specific connection
+  const getConnection = (id: string, type: 'gcs' | 'clickhouse') => {
+    if (type === 'gcs') {
+      return gcsConnections.find(conn => conn.id === id);
+    } else {
+      return clickhouseConnections.find(conn => conn.id === id);
+    }
+  };
+
+  // Add or update a connection secret
+  const updateConnectionSecret = (
+    id: string, 
+    type: 'gcs' | 'clickhouse', 
+    secretKey: string, 
+    secretValue: string
+  ) => {
+    if (type === 'gcs') {
+      setGCSConnections(prev => 
+        prev.map(conn => 
+          conn.id === id ? { 
+            ...conn, 
+            secrets: { ...(conn.secrets || {}), [secretKey]: secretValue } 
+          } : conn
+        )
+      );
+    } else {
+      setClickhouseConnections(prev => 
+        prev.map(conn => 
+          conn.id === id ? { 
+            ...conn, 
+            secrets: { ...(conn.secrets || {}), [secretKey]: secretValue } 
+          } : conn
+        )
+      );
+    }
+  };
+
   return {
     gcsConnections,
     clickhouseConnections,
@@ -95,6 +136,8 @@ export const useConnections = () => {
     updateGCSConnection,
     updateClickhouseConnection,
     deleteGCSConnection,
-    deleteClickhouseConnection
+    deleteClickhouseConnection,
+    getConnection,
+    updateConnectionSecret
   };
 };

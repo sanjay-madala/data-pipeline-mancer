@@ -17,6 +17,7 @@ interface ConnectionsListProps {
   type: 'gcs' | 'clickhouse';
   onEdit: (id: string, type: 'gcs' | 'clickhouse') => void;
   onDelete: (id: string, type: 'gcs' | 'clickhouse') => void;
+  onTest: (id: string, type: 'gcs' | 'clickhouse') => void;
   emptyMessage: string;
 }
 
@@ -25,6 +26,7 @@ export const ConnectionsList: React.FC<ConnectionsListProps> = ({
   type,
   onEdit,
   onDelete,
+  onTest,
   emptyMessage
 }) => {
   if (connections.length === 0) {
@@ -70,6 +72,13 @@ export const ConnectionsList: React.FC<ConnectionsListProps> = ({
             </TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onTest(connection.id, type)}
+                >
+                  <ExternalLinkIcon className="h-4 w-4 text-green-600" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"

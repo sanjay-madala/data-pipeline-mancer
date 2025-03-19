@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GCSConnectionForm } from '@/components/Connections/GCSConnectionForm';
 import { ClickhouseConnectionForm } from '@/components/Connections/ClickhouseConnectionForm';
+import { ConnectionTest } from '@/components/Connections/ConnectionTest';
 import { GCSConfig, ClickhouseConfig } from '@/types/pipeline';
 import { ConnectionsList } from '@/components/Connections/ConnectionsList';
 import { useConnections } from '@/hooks/useConnections';
@@ -24,6 +25,7 @@ const Connections = () => {
   const [activeTab, setActiveTab] = useState<'gcs' | 'clickhouse'>('gcs');
   const [isCreating, setIsCreating] = useState(false);
   const [editingConnection, setEditingConnection] = useState<{id: string, type: 'gcs' | 'clickhouse'} | null>(null);
+  const [testingConnection, setTestingConnection] = useState<{id: string, type: 'gcs' | 'clickhouse'} | null>(null);
   
   const { 
     gcsConnections, 
@@ -33,7 +35,8 @@ const Connections = () => {
     updateGCSConnection,
     updateClickhouseConnection,
     deleteGCSConnection,
-    deleteClickhouseConnection
+    deleteClickhouseConnection,
+    getConnection
   } = useConnections();
 
   const handleCreateNew = () => {
@@ -47,6 +50,10 @@ const Connections = () => {
     setIsCreating(true);
   };
 
+  const handleTestConnection = (id: string, type: 'gcs' | 'clickhouse') => {
+    setTestingConnection({ id, type });
+  };
+
   const handleDelete = (id: string, type: 'gcs' | 'clickhouse') => {
     if (window.confirm('Are you sure you want to delete this connection? This action cannot be undone.')) {
       if (type === 'gcs') {
@@ -58,7 +65,7 @@ const Connections = () => {
     }
   };
 
-  const handleSaveGCS = (connection: GCSConfig & { id: string, name: string }) => {
+  const handleSaveGCS = (connection: GCSConfig & { id: string, name: string, secrets?: Record<string, string> }) => {
     if (editingConnection && editingConnection.type === 'gcs') {
       updateGCSConnection(editingConnection.id, connection);
       toast.success('Connection updated successfully');
@@ -70,7 +77,7 @@ const Connections = () => {
     setEditingConnection(null);
   };
 
-  const handleSaveClickhouse = (connection: ClickhouseConfig & { id: string, name: string }) => {
+  const handleSaveClickhouse = (connection: ClickhouseConfig & { id: string, name: string, secrets?: Record<string, string> }) => {
     if (editingConnection && editingConnection.type === 'clickhouse') {
       updateClickhouseConnection(editingConnection.id, connection);
       toast.success('Connection updated successfully');
@@ -90,6 +97,12 @@ const Connections = () => {
     } else {
       return clickhouseConnections.find(c => c.id === editingConnection.id);
     }
+  };
+
+  const getConnectionToTest = () => {
+    if (!testingConnection) return undefined;
+    
+    return getConnection(testingConnection.id, testingConnection.type);
   };
 
   return (
@@ -139,7 +152,7 @@ const Connections = () => {
                     setIsCreating(false);
                     setEditingConnection(null);
                   }}
-                  initialData={editingConnection?.type === 'gcs' ? getConnectionToEdit() as (GCSConfig & { id: string, name: string }) : undefined}
+                  initialData={editingConnection?.type === 'gcs' ? getConnectionToEdit() as (GCSConfig & { id: string, name: string, secrets?: Record<string, string> }) : undefined}
                 />
               </TabsContent>
               
@@ -150,7 +163,7 @@ const Connections = () => {
                     setIsCreating(false);
                     setEditingConnection(null);
                   }}
-                  initialData={editingConnection?.type === 'clickhouse' ? getConnectionToEdit() as (ClickhouseConfig & { id: string, name: string }) : undefined}
+                  initialData={editingConnection?.type === 'clickhouse' ? getConnectionToEdit() as (ClickhouseConfig & { id: string, name: string, secrets?: Record<string, string> }) : undefined}
                 />
               </TabsContent>
             </Tabs>
@@ -174,6 +187,7 @@ const Connections = () => {
                 type="gcs"
                 onEdit={handleEditConnection}
                 onDelete={handleDelete}
+                onTest={handleTestConnection}
                 emptyMessage="No GCS connections configured. Create one to get started."
               />
             </CardContent>
@@ -195,11 +209,21 @@ const Connections = () => {
                 type="clickhouse"
                 onEdit={handleEditConnection}
                 onDelete={handleDelete}
+                onTest={handleTestConnection}
                 emptyMessage="No Clickhouse connections configured. Create one to get started."
               />
             </CardContent>
           </Card>
         </div>
+      )}
+      
+      {testingConnection && (
+        <ConnectionTest 
+          isOpen={!!testingConnection}
+          onClose={() => setTestingConnection(null)}
+          connection={getConnectionToTest()}
+          connectionType={testingConnection?.type || 'gcs'}
+        />
       )}
     </div>
   );
